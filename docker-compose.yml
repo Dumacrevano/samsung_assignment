@@ -1,0 +1,8 @@
+#Make go Web Server
+version: '3'
+services:
+  go-app:
+    image : 'dumacrevano2000/go_hello_world:v1'
+    ports: 
+     - "1080:8080"
+
