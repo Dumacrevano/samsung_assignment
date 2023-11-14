@@ -345,5 +345,3 @@ building a docker image from the existsing go file and dockerfile with label dum
     -- More  --
     ```
     
-6. check if 
-<iframe src="https://drive.google.com/file/d/1ihi2lojhRSV17Ji_MDBUloRlmh5_1pFx/preview" width="640" height="480" allow="autoplay"></iframe>
