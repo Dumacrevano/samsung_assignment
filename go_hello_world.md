@@ -359,3 +359,194 @@ building a docker image from the existsing go file and dockerfile with label dum
 6. instance image in aws console
 
     ![images](https://github.com/Dumacrevano/samsung_assignment/blob/main/screen_shoot/proof_instance%20has%20been%20created.png?raw=true)
+    
+## Creating Amazon Instance inside a VPC
+
+1. Create a base 10.0.0.0 vpc
+    ```
+    C:\Users\ASUS\Desktop\test_aws_cli>aws ec2 create-vpc --cidr-block 10.0.0.0/16
+    {
+        "Vpc": {
+            "CidrBlock": "10.0.0.0/16",
+            "DhcpOptionsId": "dopt-0dc5c1b821fb516c0",
+            "State": "pending",
+            "VpcId": "vpc-0b65cf4b2a7e71a73",
+            "OwnerId": "260704806922",
+            "InstanceTenancy": "default",
+            "Ipv6CidrBlockAssociationSet": [],
+            "CidrBlockAssociationSet": [
+                {
+                    "AssociationId": "vpc-cidr-assoc-0690d13e599b9e010",
+                    "CidrBlock": "10.0.0.0/16",
+                    "CidrBlockState": {
+                        "State": "associated"
+                    }
+                }
+            ],
+            "IsDefault": false
+        }
+    }
+    ```
+    
+    
+    
+2. Create subnet for the previously created vpc
+    ```
+    C:\Users\ASUS\Desktop\test_aws_cli>aws ec2 create-subnet --vpc-id vpc-0b65cf4b2a7e71a73 --cidr-block 10.0.0.0/24
+    {
+        "Subnet": {
+            "AvailabilityZone": "ap-southeast-1c",
+            "AvailabilityZoneId": "apse1-az3",
+            "AvailableIpAddressCount": 251,
+            "CidrBlock": "10.0.0.0/24",
+            "DefaultForAz": false,
+            "MapPublicIpOnLaunch": false,
+            "State": "available",
+            "SubnetId": "subnet-0455b2b2ff0edc3c2",
+            "VpcId": "vpc-0b65cf4b2a7e71a73",
+            "OwnerId": "260704806922",
+            "AssignIpv6AddressOnCreation": false,
+            "Ipv6CidrBlockAssociationSet": [],
+            "SubnetArn": "arn:aws:ec2:ap-southeast-1:260704806922:subnet/subnet-0455b2b2ff0edc3c2",
+            "EnableDns64": false,
+            "Ipv6Native": false,
+            "PrivateDnsNameOptionsOnLaunch": {
+                "HostnameType": "ip-name",
+                "EnableResourceNameDnsARecord": false,
+                "EnableResourceNameDnsAAAARecord": false
+            }
+        }
+    }
+    ```
+
+3. Create Internet Gateway
+    ```
+    C:\Users\ASUS\Desktop\test_aws_cli>aws ec2 create-internet-gateway
+    {
+        "InternetGateway": {
+            "Attachments": [],
+            "InternetGatewayId": "igw-0d315723b7022dedd",
+            "OwnerId": "260704806922",
+            "Tags": []
+        }
+    }
+    ```
+    
+4. Assign Internet Gateway to VPC
+    ```
+    C:\Users\ASUS\Desktop\test_aws_cli>aws ec2 attach-internet-gateway --vpc-id vpc-0b65cf4b2a7e71a73 --internet-gateway-id igw-0d315723b7022dedd
+    ```
+5. Create route table for the VPC
+    ```
+    C:\Users\ASUS\Desktop\test_aws_cli>aws ec2 create-route-table --vpc-id vpc-0b65cf4b2a7e71a73
+    {
+        "RouteTable": {
+            "Associations": [],
+            "PropagatingVgws": [],
+            "RouteTableId": "rtb-042bd057f4f048047",
+            "Routes": [
+                {
+                    "DestinationCidrBlock": "10.0.0.0/16",
+                    "GatewayId": "local",
+                    "Origin": "CreateRouteTable",
+                    "State": "active"
+                }
+            ],
+            "Tags": [],
+            "VpcId": "vpc-0b65cf4b2a7e71a73",
+            "OwnerId": "260704806922"
+        }
+    }
+    ```
+    
+6. Associate route table to subnet
+
+    ```
+    C:\Users\ASUS\Desktop\test_aws_cli>aws ec2 associate-route-table --subnet-id subnet-0455b2b2ff0edc3c2 --route-table-id rtb-042bd057f4f048047
+    {
+        "AssociationId": "rtbassoc-0ea6983ce7a14189f",
+        "AssociationState": {
+            "State": "associated"
+        }
+    }
+    ```
+7. Add route that allow internet access to the route table
+    ```
+    C:\Users\ASUS\Desktop\test_aws_cli>aws ec2 create-route --route-table-id rtb-042bd057f4f048047 --destination-cidr-block 0.0.0.0/0 --gateway-id igw-0d315723b7022dedd
+    {
+        "Return": true
+    }
+    ```
+    View of the VPC in the web console
+    Details:
+    ![vpc details image](https://github.com/Dumacrevano/samsung_assignment/blob/main/screen_shoot/vpc/AWS%20web%20console%20VPC%201.png?raw=true)
+    ![vpc resource map](
+    https://github.com/Dumacrevano/samsung_assignment/blob/main/screen_shoot/vpc/resource%20map%20vpc.png?raw=true
+    )
+
+8. Create EC2 instance inside vpc 
+    ```
+    C:\Users\ASUS\Desktop\test_aws_cli>aws ec2 run-instances --image-id ami-03caf91bb3d81b843 --instance-type t2.micro --key-name test_key1 --security-group-ids sg-04d336d58a0ec7f69 --subnet-id subnet-0455b2b2ff0edc3c2
+    {
+        "Groups": [],
+        "Instances": [
+            {
+                "AmiLaunchIndex": 0,
+                "ImageId": "ami-03caf91bb3d81b843",
+                "InstanceId": "i-0af402790c3c9f66b",
+                "InstanceType": "t2.micro",
+                "KeyName": "test_key1",
+                "LaunchTime": "2023-11-15T16:35:41+00:00",
+                "Monitoring": {
+                    "State": "disabled"
+                },
+                "Placement": {
+                    "AvailabilityZone": "ap-southeast-1c",
+                    "GroupName": "",
+                    "Tenancy": "default"
+                },
+                "PrivateDnsName": "ip-10-0-0-25.ap-southeast-1.compute.internal",
+                "PrivateIpAddress": "10.0.0.25",
+                "ProductCodes": [],
+                "PublicDnsName": "",
+                "State": {
+                    "Code": 0,
+                    "Name": "pending"
+                },
+                "StateTransitionReason": "",
+                "SubnetId": "subnet-0455b2b2ff0edc3c2",
+                "VpcId": "vpc-0b65cf4b2a7e71a73",
+    -- More  --
+    ```
+    console view of the create instance
+    ![Ec2 aws console view](https://github.com/Dumacrevano/samsung_assignment/blob/main/screen_shoot/vpc/Created%20EC2%20instance%20web%20console%20view.png?raw=true)
+    
+    
+9. Allocate Elastic Ip (public IP) for the EC2 in VPC
+```
+C:\Users\ASUS\Desktop\test_aws_cli>aws ec2 allocate-address --domain vpc
+{
+    "PublicIp": "18.142.42.14",
+    "AllocationId": "eipalloc-0a4f805f0fe013ac8",
+    "PublicIpv4Pool": "amazon",
+    "NetworkBorderGroup": "ap-southeast-1",
+    "Domain": "vpc"
+}
+```
+10. Associate allocated ip with instance id
+```
+C:\Users\ASUS\Desktop\test_aws_cli>aws ec2 associate-address --instance-id i-0af402790c3c9f66b --allocation-id eipalloc-0a4f805f0fe013ac8
+{
+    "AssociationId": "eipassoc-0fa80a187d69353c5"
+}
+```
+image of EC2 instace in aws console after elastic ip association
+![Ec2 aws console view with elastic](https://github.com/Dumacrevano/samsung_assignment/blob/main/screen_shoot/vpc/Created%20EC2%20instance%20view%20after%20elastic%20ip%20association.png?raw=true)
+
+11. try to ssh to the EC2 instance in the VPC 
+```
+C:\Users\ASUS\Desktop\test_aws_cli>ssh -i test_key1.pem ubuntu@18.142.42.14
+```
+
+image of successful ssh
+![successful ssh to ec2 isntance](https://github.com/Dumacrevano/samsung_assignment/blob/main/screen_shoot/vpc/successful%20connect%20to%20vpc.png?raw=true)
