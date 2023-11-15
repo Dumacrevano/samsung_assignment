@@ -101,6 +101,9 @@ building a docker image from the existsing go file and dockerfile with label dum
      => => writing image sha256:207516a3844f7d5ef5bc340743ebcef5aec0f94b0b649c600cfaae8a59bdaea5                       0.0s
      => => naming to docker.io/dumac/hello_world                                                                       0.0s
     ```
+    Docker build image
+    ![image](https://github.com/Dumacrevano/samsung_assignment/blob/main/screen_shoot/docker%20build%20run.png?raw=true)
+    
 4. Check available docker images to make sure image is built:
 
     ```
@@ -132,6 +135,10 @@ building a docker image from the existsing go file and dockerfile with label dum
     1777ac7d307b: Mounted from library/golang
     v1: digest: sha256:c38cf5f5206bd372d8c8a63b895d1e134458d5bf16b8ab9181c7c54445873353 size: 2838
     ```
+    pushed docker image
+    
+    ![docker_hub](https://github.com/Dumacrevano/samsung_assignment/blob/main/screen_shoot/docker%20repo.png?raw=true)
+
 
 7. docker-compose.yml
 
@@ -345,5 +352,6 @@ building a docker image from the existsing go file and dockerfile with label dum
     -- More  --
     ```
     
-6. check if 
-![instance_ss](https://drive.google.com/file/d/1ihi2lojhRSV17Ji_MDBUloRlmh5_1pFx/view?usp=sharin)
+6. instance image in aws console
+
+    ![images](https://github.com/Dumacrevano/samsung_assignment/blob/main/screen_shoot/proof_instance%20has%20been%20created.png?raw=true)
